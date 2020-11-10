@@ -104,14 +104,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Hanoi.cpp" />
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="Menu.cpp" />
+    <ClCompile Include="project_files\Hanoi.cpp" />
+    <ClCompile Include="project_files\main.cpp" />
+    <ClCompile Include="project_files\Menu.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Hanoi.h" />
-    <ClInclude Include="Library.h" />
-    <ClInclude Include="Menu.h" />
+    <ClInclude Include="project_files\Hanoi.h" />
+    <ClInclude Include="project_files\Library.h" />
+    <ClInclude Include="project_files\Menu.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

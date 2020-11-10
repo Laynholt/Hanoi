@@ -15,24 +15,24 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp">
+    <ClCompile Include="project_files\Hanoi.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Menu.cpp">
+    <ClCompile Include="project_files\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Hanoi.cpp">
+    <ClCompile Include="project_files\Menu.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Library.h">
+    <ClInclude Include="project_files\Hanoi.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Menu.h">
+    <ClInclude Include="project_files\Library.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Hanoi.h">
+    <ClInclude Include="project_files\Menu.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
