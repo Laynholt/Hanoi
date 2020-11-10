@@ -71,6 +71,12 @@ int16_t Menu::menu()
 		{
 			if (event.type == sf::Event::Closed)
 				window.close();
+
+			// Ёкшенс
+			for (int16_t i = 0; i < 3; i++)
+			{
+				activate_button(rect[i], i, false, 0);
+			}
 		}
 
 		window.clear();
@@ -119,4 +125,23 @@ int16_t Menu::menu()
 	}
 
 	return 0;
+}
+
+void Menu::activate_button(sf::RectangleShape& rect, int16_t number_of_rect, bool is_settings, int16_t n_settings_button)
+{
+	sf::Vector2i mouse;
+
+	mouse = sf::Mouse::getPosition(window);
+
+	if (mouse.x >= rect.getPosition().x && mouse.x <= (rect.getPosition().x + rect.getSize().x) &&
+		mouse.y >= rect.getPosition().y && mouse.y <= (rect.getPosition().y + rect.getSize().y))
+	{
+		if (!is_settings) { rect.setScale(sf::Vector2f(1.1f, 1.0f)); }
+		else { rect.setScale(sf::Vector2f(1.0f, 1.1f)); }
+	}
+
+	else
+	{
+		rect.setScale(sf::Vector2f(1.0f, 1.0f));
+	}
 }
