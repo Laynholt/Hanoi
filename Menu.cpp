@@ -138,6 +138,19 @@ void Menu::activate_button(sf::RectangleShape& rect, int16_t number_of_rect, boo
 	{
 		if (!is_settings) { rect.setScale(sf::Vector2f(1.1f, 1.0f)); }
 		else { rect.setScale(sf::Vector2f(1.0f, 1.1f)); }
+
+		if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && window.hasFocus())
+		{
+			if (!is_settings)
+			{
+				if (number_of_rect == 0)
+					;//go_to_game = true;
+				else if (number_of_rect == 1)
+					;//settings();
+				else if (number_of_rect == 2)
+					window.close();
+			}
+		}
 	}
 
 	else
