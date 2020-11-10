@@ -9,8 +9,17 @@ private:
 	sf::Sound click, scroll;
 	sf::SoundBuffer click_buffer, scroll_buffer;
 
+	int16_t _old_choose_disk;
+	int16_t _old_choose_3d;
+	int16_t _old_choose_music;
+
+	int16_t _old_choose_scroll;
+
+	bool go_to_game;
+
 protected:
 	bool disable_music;
+	int16_t number_of_disks;
 
 protected:
 	// Ошибки

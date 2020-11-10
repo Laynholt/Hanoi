@@ -57,6 +57,12 @@ Menu::Menu()
 		std::wcout << L"\nSound scroll error!" << std::endl;
 		scroll_error = true;
 	}
+
+	number_of_disks = 0;
+	go_to_game = false;
+
+	_old_choose_scroll = -1;
+	_old_choose_disk = _old_choose_3d = _old_choose_music = 0;
 }
 
 int16_t Menu::menu()
@@ -192,6 +198,12 @@ void Menu::activate_button(sf::RectangleShape& rect, int16_t number_of_rect, boo
 	{
 		if (!is_settings) { rect.setScale(sf::Vector2f(1.1f, 1.0f)); }
 		else { rect.setScale(sf::Vector2f(1.0f, 1.1f)); }
+
+		if (number_of_rect != _old_choose_scroll)
+		{
+			if (!scroll_error) { scroll.setVolume(50); scroll.play(); }
+			_old_choose_scroll = number_of_rect;
+		}
 
 		if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && window.hasFocus())
 		{
