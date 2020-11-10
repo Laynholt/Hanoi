@@ -31,6 +31,7 @@ Menu::Menu()
 	if (!font_error)
 	{
 		text.setFont(font);
+		autor.setFont(font);
 	}
 
 	// Подключаем музыку
@@ -112,7 +113,7 @@ int16_t Menu::menu()
 	bool m = false;
 	l = k = 0.0f;
 
-	while (window.isOpen())
+	while (window.isOpen() && !go_to_game)
 	{
 		while (window.pollEvent(event))
 		{
@@ -174,6 +175,17 @@ int16_t Menu::menu()
 					SCREEN_HEIGHT / 4 + (SCREEN_HEIGHT / 6 + 10) * i + 10));
 				text.setStyle(sf::Text::Bold);
 				window.draw(text);
+
+				autor.setCharacterSize(20);
+				str = L"ver. ~beta 1.1";
+				autor.setString(str);
+				autor.setPosition(sf::Vector2f(SCREEN_WIDTH - 250, SCREEN_HEIGHT - 70));
+				window.draw(autor);
+
+				str = L"Created by Laynholt |> 2020";
+				autor.setString(str);
+				autor.setPosition(sf::Vector2f(SCREEN_WIDTH - 320, SCREEN_HEIGHT - 40));
+				window.draw(autor);
 			}
 		}
 

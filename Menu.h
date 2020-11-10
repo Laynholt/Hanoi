@@ -6,6 +6,7 @@
 class Menu
 {
 private:
+	sf::Text autor;
 	sf::Sound click, scroll;
 	sf::SoundBuffer click_buffer, scroll_buffer;
 
