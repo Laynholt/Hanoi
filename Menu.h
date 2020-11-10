@@ -50,7 +50,9 @@ public:
 
 	int16_t menu();
 
+private:
 	void activate_button(sf::RectangleShape& rect, int16_t number_of_rect, bool is_settings, int16_t n_settings_button);
+	void settings();
 };
 
 #endif // !_MENU_H_

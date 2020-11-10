@@ -210,9 +210,9 @@ void Menu::activate_button(sf::RectangleShape& rect, int16_t number_of_rect, boo
 			if (!is_settings)
 			{
 				if (number_of_rect == 0)
-					;//go_to_game = true;
+					go_to_game = true;
 				else if (number_of_rect == 1)
-					;//settings();
+					settings();
 				else if (number_of_rect == 2)
 					window.close();
 			}
@@ -222,5 +222,34 @@ void Menu::activate_button(sf::RectangleShape& rect, int16_t number_of_rect, boo
 	else
 	{
 		rect.setScale(sf::Vector2f(1.0f, 1.0f));
+	}
+}
+
+void Menu::settings()
+{
+	bool go_to_menu = false;
+	_old_choose_scroll = -1;
+
+	while (window.isOpen() && !go_to_menu)
+	{
+		while (window.pollEvent(event))
+		{
+			if (event.type == sf::Event::Closed)
+				window.close();
+
+			if (event.type == sf::Event::EventType::MouseButtonPressed)
+				if (event.mouseButton.button == sf::Mouse::Left && window.hasFocus())
+					if (!click_error) { click.play(); }
+
+			if (event.type == sf::Event::EventType::KeyPressed)
+				if (event.key.code == sf::Keyboard::Escape && window.hasFocus())
+					if (!click_error) { click.play(); go_to_menu = true; }
+		}
+
+		window.clear();
+
+		window.draw(sprite);
+
+		window.display();
 	}
 }
