@@ -1,4 +1,4 @@
-#include "Menu.h"
+#include "Hanoi.h"
 
 using namespace std;
 
@@ -9,8 +9,8 @@ int main()
     _setmode(_fileno(stderr), _O_U16TEXT);
 
 
-    Menu m;
-    m.menu();
+    Hanoi hanoi;
+    hanoi.Loop();
 
     return 0;
 }

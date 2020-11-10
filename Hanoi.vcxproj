@@ -104,10 +104,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Hanoi.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Menu.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Hanoi.h" />
     <ClInclude Include="Library.h" />
     <ClInclude Include="Menu.h" />
   </ItemGroup>
