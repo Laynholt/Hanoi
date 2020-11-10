@@ -3,6 +3,10 @@
 Hanoi::Hanoi()
 {
 	pin = 0;
+	count = 0;
+	best_count = 0;
+	count_built_tower = 0;
+	started_tower = pin;
 
 	back_to_menu = false;
 
@@ -13,6 +17,13 @@ Hanoi::Hanoi()
 
 void Hanoi::Loop()
 {
+	// Плашка на которой будет лежать текст
+	sf::RectangleShape rect_for_text;
+
+	rect_for_text.setSize(sf::Vector2f(SCREEN_WIDTH, SCREEN_HEIGHT / 12));
+	rect_for_text.setFillColor(sf::Color(22, 22, 22, 255));
+	rect_for_text.setOutlineThickness(3);
+	rect_for_text.setOutlineColor(sf::Color::White);
 
 	// Выводим меню
 	menu();
@@ -80,6 +91,8 @@ void Hanoi::Loop()
 			}
 		}
 
+		// Подсчёт количества собранных башен
+		counting_built_towers();
 
 		if (a != 0 || first)
 		{
@@ -88,10 +101,23 @@ void Hanoi::Loop()
 			first = false;
 
 			if (a == 1 || a == 5) { triangle.setPosition((pin * horisontal_width / 3) + vertical_x - _radius + vertical[0].getSize().x / 2, SCREEN_HEIGHT * 0.85f); }
-
+			if (a == 2 || a == 5)
+			{
+				if (!font_error)
+				{
+					std::wstring wstr = L"Башенек собранно: " + std::to_wstring(count_built_tower) +
+						L"\tКоличество ходов: " + std::to_wstring(count) + L"\tРекорд по сбору (ходы): " + std::to_wstring(best_count);
+					text.setString(wstr);
+				}
+			}
 
 			// Фон
 			if (!texture_error) window.draw(sprite);
+
+
+			// Текст
+			window.draw(rect_for_text);
+			if (!font_error) window.draw(text);
 
 			// Горизонт и указатель
 			for (int16_t j = (FOR_3D > 1) ? -FOR_3D : 0; j < FOR_3D; j++)
@@ -131,20 +157,18 @@ int16_t Hanoi::actions()
 
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::W) || sf::Mouse::isButtonPressed(sf::Mouse::Left))
 		{
-			if (pin == 2) { move_disk(2, 1, 1); return 2; }
-			else if (pin == 1) { move_disk(1, 0, 0); return 2; }
-
+			if (pin == 2) { if (!move_disk(2, 1, 1)) { count++; } return 2; }
+			else if (pin == 1) { if (!move_disk(1, 0, 0)) { count++; } return 2; }
 		}
 		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::E) || sf::Mouse::isButtonPressed(sf::Mouse::Right))
 		{
-			if (pin == 0) { move_disk(0, 1, 1); return 2; }
-			else if (pin == 1) { move_disk(1, 2, 2); return 2; }
+			if (pin == 0) { if (!move_disk(0, 1, 1)) { count++;  return 2; } }
+			else if (pin == 1) { if (!move_disk(1, 2, 2)) { count++;  return 2; } }
 		}
-
 		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space) || sf::Mouse::isButtonPressed(sf::Mouse::Middle))
 		{
-			if (pin == 0) { move_disk(0, 2, 2); return 2; }
-			else if (pin == 2) { move_disk(2, 0, 0); return 2; }
+			if (pin == 0) { if (!move_disk(0, 2, 2)) { count++; return 2; } }
+			else if (pin == 2) { if (!move_disk(2, 0, 0)) { count++; return 2; } }
 		}
 
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape)) { return 4; }
@@ -164,7 +188,24 @@ void Hanoi::restart()
 
 	FOR_3D = (disable_3d == false) ? 10 : 1;
 
+	pin = 0;
+	count = 0;
+	best_count = 0;
+	started_tower = pin;
+	count_built_tower = 0;
+
 	back_to_menu = false;
+
+	// Текст
+	if (!font_error)
+	{
+		std::wstring wstr = L"Башенек собранно: " + std::to_wstring(count_built_tower) +
+			L"\tКоличество ходов: " + std::to_wstring(count) + L"\tРекорд по сбору (ходы): " + std::to_wstring(best_count);
+		text.setString(wstr);
+		text.setPosition(sf::Vector2f(70, 0));
+		text.setCharacterSize(30);
+		text.setStyle(sf::Text::Bold);
+	}
 
 	// Диски
 	float scale = SCALE;
@@ -255,4 +296,23 @@ bool Hanoi::move_disk(int8_t from_pin, int8_t to_pin, int16_t new_pin)
 	}
 
 	return 1;
+}
+
+void Hanoi::counting_built_towers()
+{
+	for (int16_t i = 0; i < 3; i++)
+	{
+		if ((stacks[i].size() / FOR_3D) == number_of_disks && i != started_tower)
+		{
+			started_tower = i;
+			count_built_tower++;
+
+			if (best_count == 0 || best_count > count)
+				best_count = count;
+
+			count = 0;
+
+			break;
+		}
+	}
 }

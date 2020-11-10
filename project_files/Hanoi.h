@@ -20,6 +20,11 @@ private:
 
 	std::vector<float> full_heights;
 
+	int16_t count;
+	int16_t count_built_tower;
+	int16_t started_tower;
+	int16_t best_count;
+
 	int16_t FOR_3D;
 
 private:
@@ -46,6 +51,8 @@ private:
 
 	void draw_tower();
 	bool move_disk(int8_t from_pin, int8_t to_pin, int16_t new_pin);
+
+	void counting_built_towers();
 };
 
 #endif // !_HANOI_H_
