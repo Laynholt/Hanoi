@@ -19,6 +19,7 @@ private:
 
 protected:
 	bool disable_music;
+	bool disable_3d;
 	int16_t number_of_disks;
 
 protected:

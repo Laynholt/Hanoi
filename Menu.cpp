@@ -58,6 +58,7 @@ Menu::Menu()
 		scroll_error = true;
 	}
 
+	disable_3d = false;
 	number_of_disks = 0;
 	go_to_game = false;
 
@@ -216,12 +217,74 @@ void Menu::activate_button(sf::RectangleShape& rect, int16_t number_of_rect, boo
 				else if (number_of_rect == 2)
 					window.close();
 			}
+
+			if (!is_settings)
+			{
+				if (number_of_rect == 0)
+					go_to_game = true;
+				else if (number_of_rect == 1)
+					settings();
+				else if (number_of_rect == 2)
+					window.close();
+			}
+
+			else if (n_settings_button == 0)
+			{
+				if (number_of_rect != _old_choose_disk)
+				{
+					_old_choose_disk = number_of_rect;
+					number_of_disks = 3 + number_of_rect;
+				}
+			}
+
+			else if (n_settings_button == 1)
+			{
+				if (number_of_rect != _old_choose_3d)
+				{
+					_old_choose_3d = number_of_rect;
+
+					if (number_of_rect == 1)
+					{
+						disable_3d = true;
+					}
+					else { disable_3d = false; }
+				}
+			}
+
+			else if (n_settings_button == 2)
+			{
+				if (number_of_rect != _old_choose_music)
+				{
+					_old_choose_music = number_of_rect;
+
+					if (number_of_rect == 1)
+					{
+						disable_music = true;
+						if (music.Playing)
+							music.stop();
+					}
+
+					else
+					{
+						disable_music = false;
+						if (music.Paused)
+							music.play();
+					}
+				}
+			}
 		}
 	}
 
 	else
 	{
 		rect.setScale(sf::Vector2f(1.0f, 1.0f));
+
+		if (number_of_rect != _old_choose_disk && n_settings_button == 0)
+			rect.setOutlineThickness(0);
+		else if (number_of_rect != _old_choose_3d && n_settings_button == 1)
+			rect.setOutlineThickness(0);
+		else if (number_of_rect != _old_choose_music && n_settings_button == 2)
+			rect.setOutlineThickness(0);
 	}
 }
 
@@ -305,6 +368,17 @@ void Menu::settings()
 			if (event.type == sf::Event::EventType::KeyPressed)
 				if (event.key.code == sf::Keyboard::Escape && window.hasFocus())
 					if (!click_error) { click.play(); go_to_menu = true; }
+
+			// Ёкшены
+			for (int16_t i = 0; i < 4; i++)
+			{
+				activate_button(rect_nums_disks[i], i, true, 0);
+			}
+			for (int16_t i = 0; i < 2; i++)
+			{
+				activate_button(rect_on_off_3d[i], i, true, 1);
+				activate_button(rect_on_off_music[i], i, true, 2);
+			}
 		}
 
 		window.clear();
