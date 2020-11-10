@@ -32,6 +32,31 @@ Menu::Menu()
 	{
 		text.setFont(font);
 	}
+
+	// Подключаем музыку
+	music_error = false;
+	disable_music = false;
+	if (!music.openFromFile("recources/music/Space-Music-Astro.ogg"))
+	{
+		std::wcout << L"\nMusic error!" << std::endl;
+		music_error = true;
+	}
+
+	// Подключаем звук клика
+	click_error = false;
+	if (!click_buffer.loadFromFile("recources/sounds/click1.ogg"))
+	{
+		std::wcout << L"\nSound click error!" << std::endl;
+		click_error = true;
+	}
+
+	// Подключаем звук скролла
+	scroll_error = false;
+	if (!scroll_buffer.loadFromFile("recources/sounds/scroll2.ogg"))
+	{
+		std::wcout << L"\nSound scroll error!" << std::endl;
+		scroll_error = true;
+	}
 }
 
 int16_t Menu::menu()
@@ -60,6 +85,21 @@ int16_t Menu::menu()
 
 	std::wstring str;
 
+	if (!music.openFromFile("recources/music/Space-Music-Astro.ogg"))
+	{
+		std::wcout << "\nMusic error!" << std::endl;
+		music_error = true;
+	}
+
+	if (!music_error && !disable_music)
+	{
+		music.play();
+		music.setLoop(true);
+		music.setVolume(50.0f);
+	}
+
+	if (!click_error) { click.setBuffer(click_buffer); }
+	if (!scroll_error) { scroll.setBuffer(scroll_buffer); }
 
 	float l, k;
 	bool m = false;
@@ -71,6 +111,15 @@ int16_t Menu::menu()
 		{
 			if (event.type == sf::Event::Closed)
 				window.close();
+
+			// Нажатие левой кнопки для звуков
+			if (event.type == sf::Event::EventType::MouseButtonPressed)
+				if (event.mouseButton.button == sf::Mouse::Left && window.hasFocus())
+					if (!click_error) { click.play(); }
+			// Нажатие Esc для звуков
+			if (event.type == sf::Event::EventType::KeyPressed)
+				if (event.key.code == sf::Keyboard::Escape && window.hasFocus())
+					if (!click_error) { click.play(); }
 
 			// Экшенс
 			for (int16_t i = 0; i < 3; i++)
@@ -122,6 +171,11 @@ int16_t Menu::menu()
 		}
 
 		window.display();
+	}
+
+	if (music.Playing)
+	{
+		music.pause();
 	}
 
 	return 0;

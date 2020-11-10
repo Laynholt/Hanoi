@@ -5,11 +5,20 @@
 
 class Menu
 {
+private:
+	sf::Sound click, scroll;
+	sf::SoundBuffer click_buffer, scroll_buffer;
+
+protected:
+	bool disable_music;
 
 protected:
 	// Ошибки
 	bool font_error;
 	bool texture_error;
+	bool music_error;
+	bool scroll_error;
+	bool click_error;
 
 protected:
 	// Окно
@@ -23,6 +32,9 @@ protected:
 	// Фон
 	sf::Texture texture;
 	sf::Sprite sprite;
+
+	// Музыка
+	sf::Music music;
 
 public:
 	Menu();
