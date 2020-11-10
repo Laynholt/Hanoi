@@ -8,12 +8,17 @@ class Menu
 
 protected:
 	// Ошибки
+	bool font_error;
 	bool texture_error;
 
 protected:
 	// Окно
 	sf::RenderWindow window;
 	sf::Event event;
+
+	// Текст
+	sf::Font font;
+	sf::Text text;
 
 	// Фон
 	sf::Texture texture;
