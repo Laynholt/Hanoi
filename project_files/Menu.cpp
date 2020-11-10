@@ -179,7 +179,7 @@ int16_t Menu::menu()
 				window.draw(text);
 
 				autor.setCharacterSize(20);
-				str = L"ver. ~beta 1.1";
+				str = L"ver. ~release 1.0";
 				autor.setString(str);
 				autor.setPosition(sf::Vector2f(SCREEN_WIDTH - 250, SCREEN_HEIGHT - 70));
 				window.draw(autor);
