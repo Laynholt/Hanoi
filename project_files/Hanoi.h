@@ -13,6 +13,10 @@ class Hanoi : public Menu
 private:
 	bool back_to_menu;
 
+	// Ошибки
+	bool sound_error;
+	bool congrats_error;
+	bool disk_sound_error;
 
 private:
 	int16_t pin;
@@ -38,6 +42,12 @@ private:
 
 	// Указатель
 	sf::CircleShape triangle;
+
+	// Звуки
+	sf::Sound wrong_sound;
+	sf::Sound disk_sound;
+	sf::Sound congrats_sound;
+	sf::SoundBuffer sound_buffer1, sound_buffer2, sound_buffer3;
 
 public:
 	Hanoi();

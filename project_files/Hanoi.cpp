@@ -13,6 +13,33 @@ Hanoi::Hanoi()
 	number_of_disks = 3;
 	FOR_3D = (disable_3d == false) ? 10 : 1;
 	horisontal_width = vertical_height = 0.0f;
+
+	sound_error = false;
+	if (!sound_buffer1.loadFromFile("recources/sounds/wrong.ogg"))
+	{
+		std::wcout << L"\nSound wrong error!" << std::endl;
+		sound_error = true;
+	}
+
+	else { wrong_sound.setBuffer(sound_buffer1); }
+
+	disk_sound_error = false;
+	if (!sound_buffer2.loadFromFile("recources/sounds/disks.ogg"))
+	{
+		std::wcout << L"\nSound disks error!" << std::endl;
+		disk_sound_error = true;
+	}
+
+	else { disk_sound.setBuffer(sound_buffer2); }
+
+	congrats_error = false;
+	if (!sound_buffer3.loadFromFile("recources/sounds/congrats.ogg"))
+	{
+		std::wcout << L"\nSound congrats error!" << std::endl;
+		congrats_error = true;
+	}
+
+	else { congrats_sound.setBuffer(sound_buffer3); }
 }
 
 void Hanoi::Loop()
@@ -157,18 +184,24 @@ int16_t Hanoi::actions()
 
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::W) || sf::Mouse::isButtonPressed(sf::Mouse::Left))
 		{
-			if (pin == 2) { if (!move_disk(2, 1, 1)) { count++; } return 2; }
-			else if (pin == 1) { if (!move_disk(1, 0, 0)) { count++; } return 2; }
+			if (pin == 2) { if (!move_disk(2, 1, 1)) { count++; if (!disk_sound_error) { disk_sound.play(); } return 2; } }
+			else if (pin == 1) { if (!move_disk(1, 0, 0)) { count++; if (!disk_sound_error) { disk_sound.play(); } return 2; } }
+
+			if (!sound_error) { wrong_sound.play(); }
 		}
 		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::E) || sf::Mouse::isButtonPressed(sf::Mouse::Right))
 		{
-			if (pin == 0) { if (!move_disk(0, 1, 1)) { count++;  return 2; } }
-			else if (pin == 1) { if (!move_disk(1, 2, 2)) { count++;  return 2; } }
+			if (pin == 0) { if (!move_disk(0, 1, 1)) { count++; if (!disk_sound_error) { disk_sound.play(); } return 2; } }
+			else if (pin == 1) { if (!move_disk(1, 2, 2)) { count++; if (!disk_sound_error) { disk_sound.play(); } return 2; } }
+
+			if (!sound_error) { wrong_sound.play(); }
 		}
 		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space) || sf::Mouse::isButtonPressed(sf::Mouse::Middle))
 		{
-			if (pin == 0) { if (!move_disk(0, 2, 2)) { count++; return 2; } }
-			else if (pin == 2) { if (!move_disk(2, 0, 0)) { count++; return 2; } }
+			if (pin == 0) { if (!move_disk(0, 2, 2)) { count++; if (!disk_sound_error) { disk_sound.play(); } return 2; } }
+			else if (pin == 2) { if (!move_disk(2, 0, 0)) { count++; if (!disk_sound_error) { disk_sound.play(); } return 2; } }
+
+			if (!sound_error) { wrong_sound.play(); }
 		}
 
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape)) { return 4; }
@@ -195,6 +228,20 @@ void Hanoi::restart()
 	count_built_tower = 0;
 
 	back_to_menu = false;
+
+	// Музыка
+	if (!music.openFromFile("recources/music/Space-Music-Pulsar.ogg"))
+	{
+		std::wcout << "\nMusic error!" << std::endl;
+		music_error = true;
+	}
+
+	if (!music_error && !disable_music)
+	{
+		music.play();
+		music.setLoop(true);
+		music.setVolume(50.0f);
+	}
 
 	// Текст
 	if (!font_error)
@@ -309,6 +356,8 @@ void Hanoi::counting_built_towers()
 
 			if (best_count == 0 || best_count > count)
 				best_count = count;
+
+			if (!congrats_error) { congrats_sound.setVolume(50); congrats_sound.play(); }
 
 			count = 0;
 
