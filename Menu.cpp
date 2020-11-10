@@ -69,6 +69,8 @@ Menu::Menu()
 
 int16_t Menu::menu()
 {
+	go_to_game = false;
+
 	std::vector<sf::RectangleShape> rect(3);
 	std::vector<sf::Color> col;
 	std::vector<std::wstring> titles;
@@ -220,16 +222,6 @@ void Menu::activate_button(sf::RectangleShape& rect, int16_t number_of_rect, boo
 
 		if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && window.hasFocus())
 		{
-			if (!is_settings)
-			{
-				if (number_of_rect == 0)
-					go_to_game = true;
-				else if (number_of_rect == 1)
-					settings();
-				else if (number_of_rect == 2)
-					window.close();
-			}
-
 			if (!is_settings)
 			{
 				if (number_of_rect == 0)
@@ -395,7 +387,7 @@ void Menu::settings()
 
 		window.clear();
 
-		window.draw(sprite);
+		if (!texture_error) window.draw(sprite);
 
 		// Рисуем прямоугольник Количества дисков и надпись
 		window.draw(rect_count_disks);
