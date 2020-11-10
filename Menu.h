@@ -7,9 +7,17 @@ class Menu
 {
 
 protected:
+	// Ошибки
+	bool texture_error;
+
+protected:
 	// Окно
 	sf::RenderWindow window;
 	sf::Event event;
+
+	// Фон
+	sf::Texture texture;
+	sf::Sprite sprite;
 
 public:
 	Menu();
