@@ -40,10 +40,12 @@ public:
 	void Loop();
 
 private:
+	int16_t actions();
 
 	void restart();
 
 	void draw_tower();
+	bool move_disk(int8_t from_pin, int8_t to_pin, int16_t new_pin);
 };
 
 #endif // !_HANOI_H_

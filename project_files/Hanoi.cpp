@@ -49,6 +49,11 @@ void Hanoi::Loop()
 	// Запускаем функцию рестарта
 	restart();
 
+
+	// Луп Игры
+	int16_t a = 0;
+	bool first = true;			// Для отрисовки в первый раз
+
 	while (window.isOpen())
 	{
 		vertical_x = SCREEN_WIDTH * 0.1f + horisontal_width / 6;
@@ -58,45 +63,99 @@ void Hanoi::Loop()
 		{
 			menu();
 			restart();
-			back_to_menu = false;
+			first = true;
+			triangle.setPosition((pin * horisontal_width / 3) + vertical_x - _radius + vertical[0].getSize().x / 2, SCREEN_HEIGHT * 0.85f);
 		}
 
 		while (window.pollEvent(event))
 		{
 			if (event.type == sf::Event::Closed)
 				window.close();
-		}
 
-		window.clear();
-
-		// Фон
-		if (!texture_error) window.draw(sprite);
-
-		// Горизонт и указатель
-		for (int16_t j = (FOR_3D > 1) ? -FOR_3D : 0; j < FOR_3D; j++)
-		{
-			horisontal.setPosition(sf::Vector2f(SCREEN_WIDTH * 0.1f + j, SCREEN_HEIGHT * 0.8f - j));
-			window.draw(horisontal);
-		}
-		window.draw(triangle);
-
-		// Вертикальные столбцы
-		for (uint16_t i = 0; i < 3; i++)
-		{
-			for (int16_t j = 0; j < FOR_3D; j++)
+			// Действия
+			if (event.type == sf::Event::EventType::MouseButtonPressed || event.type == sf::Event::EventType::KeyPressed)
 			{
-				window.draw(vertical[i]);
-				vertical[i].setPosition(sf::Vector2f(vertical_x + j, SCREEN_HEIGHT * 0.4f - j));
+				a = actions();
+				if (a == 4) { back_to_menu = true; }
 			}
-			vertical[i].setPosition(sf::Vector2f(vertical_x, SCREEN_HEIGHT * 0.4f));
-			vertical_x += horisontal_width / 3;
 		}
 
-		// Башенка
-		draw_tower();
 
-		window.display();
+		if (a != 0 || first)
+		{
+			window.clear();
+
+			first = false;
+
+			if (a == 1 || a == 5) { triangle.setPosition((pin * horisontal_width / 3) + vertical_x - _radius + vertical[0].getSize().x / 2, SCREEN_HEIGHT * 0.85f); }
+
+
+			// Фон
+			if (!texture_error) window.draw(sprite);
+
+			// Горизонт и указатель
+			for (int16_t j = (FOR_3D > 1) ? -FOR_3D : 0; j < FOR_3D; j++)
+			{
+				horisontal.setPosition(sf::Vector2f(SCREEN_WIDTH * 0.1f + j, SCREEN_HEIGHT * 0.8f - j));
+				window.draw(horisontal);
+			}
+			window.draw(triangle);
+
+			// Вертикальные столбцы
+			for (uint16_t i = 0; i < 3; i++)
+			{
+				for (int16_t j = 0; j < FOR_3D; j++)
+				{
+					window.draw(vertical[i]);
+					vertical[i].setPosition(sf::Vector2f(vertical_x + j, SCREEN_HEIGHT * 0.4f - j));
+				}
+				vertical[i].setPosition(sf::Vector2f(vertical_x, SCREEN_HEIGHT * 0.4f));
+				vertical_x += horisontal_width / 3;
+			}
+
+			// Башенка
+			draw_tower();
+
+			window.display();
+		}
 	}
+}
+
+int16_t Hanoi::actions()
+{
+	if (window.hasFocus())
+	{
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num1)) { pin = 0; return 1; }
+		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num2)) { pin = 1; return 1; }
+		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num3)) { pin = 2; return 1; }
+
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::W) || sf::Mouse::isButtonPressed(sf::Mouse::Left))
+		{
+			if (pin == 2) { move_disk(2, 1, 1); return 2; }
+			else if (pin == 1) { move_disk(1, 0, 0); return 2; }
+
+		}
+		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::E) || sf::Mouse::isButtonPressed(sf::Mouse::Right))
+		{
+			if (pin == 0) { move_disk(0, 1, 1); return 2; }
+			else if (pin == 1) { move_disk(1, 2, 2); return 2; }
+		}
+
+		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space) || sf::Mouse::isButtonPressed(sf::Mouse::Middle))
+		{
+			if (pin == 0) { move_disk(0, 2, 2); return 2; }
+			else if (pin == 2) { move_disk(2, 0, 0); return 2; }
+		}
+
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape)) { return 4; }
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::R))
+		{
+			restart();
+			return 5;
+		}
+	}
+
+	return 0;
 }
 
 void Hanoi::restart()
@@ -161,4 +220,39 @@ void Hanoi::draw_tower()
 			while (!s.empty()) { window.draw(s.top()); s.pop(); }
 		}
 	}
+}
+
+bool Hanoi::move_disk(int8_t from_pin, int8_t to_pin, int16_t new_pin)
+{
+	if (!stacks[from_pin].empty())
+	{
+		if (stacks[to_pin].empty() || stacks[from_pin].top().getScale().x < stacks[to_pin].top().getScale().x)
+		{
+			sf::RectangleShape temp = stacks[from_pin].top();
+
+			float disk_width, scale;
+			for (uint16_t j = 0; j < FOR_3D; j++)
+			{
+				stacks[to_pin].push(temp);
+
+				disk_width = stacks[to_pin].top().getSize().x;
+				scale = stacks[to_pin].top().getScale().x;
+
+				stacks[to_pin].top().setPosition((SCREEN_WIDTH * 0.1f) + (new_pin * horisontal_width / 3) + (horisontal_width * 0.034f) + (disk_width * (1 - scale) / 2) + j, full_heights[to_pin] - j);
+			}
+
+			full_heights[to_pin] -= stacks[to_pin].top().getSize().y;                           // Считаем полную высоту стека
+
+			full_heights[from_pin] += stacks[to_pin].top().getSize().y;
+
+			for (uint16_t j = 0; j < FOR_3D; j++)
+			{
+				stacks[from_pin].pop();
+			}
+
+			return 0;
+		}
+	}
+
+	return 1;
 }
