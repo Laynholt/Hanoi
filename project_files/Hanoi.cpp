@@ -178,25 +178,25 @@ int16_t Hanoi::actions()
 {
 	if (window.hasFocus())
 	{
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num1)) { pin = 0; return 1; }
-		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num2)) { pin = 1; return 1; }
-		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num3)) { pin = 2; return 1; }
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num1) || sf::Keyboard::isKeyPressed(sf::Keyboard::Numpad1)) { pin = 0; return 1; }
+		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num2) || sf::Keyboard::isKeyPressed(sf::Keyboard::Numpad2)) { pin = 1; return 1; }
+		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num3) || sf::Keyboard::isKeyPressed(sf::Keyboard::Numpad3)) { pin = 2; return 1; }
 
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::W) || sf::Mouse::isButtonPressed(sf::Mouse::Left))
+		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::W) || sf::Keyboard::isKeyPressed(sf::Keyboard::Left) || sf::Mouse::isButtonPressed(sf::Mouse::Left))
 		{
 			if (pin == 2) { if (!move_disk(2, 1, 1)) { count++; if (!disk_sound_error) { disk_sound.play(); } return 2; } }
 			else if (pin == 1) { if (!move_disk(1, 0, 0)) { count++; if (!disk_sound_error) { disk_sound.play(); } return 2; } }
 
 			if (!sound_error) { wrong_sound.play(); }
 		}
-		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::E) || sf::Mouse::isButtonPressed(sf::Mouse::Right))
+		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::E) || sf::Keyboard::isKeyPressed(sf::Keyboard::Right) || sf::Mouse::isButtonPressed(sf::Mouse::Right))
 		{
 			if (pin == 0) { if (!move_disk(0, 1, 1)) { count++; if (!disk_sound_error) { disk_sound.play(); } return 2; } }
 			else if (pin == 1) { if (!move_disk(1, 2, 2)) { count++; if (!disk_sound_error) { disk_sound.play(); } return 2; } }
 
 			if (!sound_error) { wrong_sound.play(); }
 		}
-		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space) || sf::Mouse::isButtonPressed(sf::Mouse::Middle))
+		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space) || sf::Keyboard::isKeyPressed(sf::Keyboard::Up) || sf::Mouse::isButtonPressed(sf::Mouse::Middle))
 		{
 			if (pin == 0) { if (!move_disk(0, 2, 2)) { count++; if (!disk_sound_error) { disk_sound.play(); } return 2; } }
 			else if (pin == 2) { if (!move_disk(2, 0, 0)) { count++; if (!disk_sound_error) { disk_sound.play(); } return 2; } }
@@ -204,8 +204,8 @@ int16_t Hanoi::actions()
 			if (!sound_error) { wrong_sound.play(); }
 		}
 
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape)) { return 4; }
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::R))
+		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape)) { return 4; }
+		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::R))
 		{
 			restart();
 			return 5;
