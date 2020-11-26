@@ -3,6 +3,8 @@
 
 #include "Library.h"
 
+#define MUSIC_VOLUME 50.0f
+
 class Menu
 {
 private:
@@ -17,19 +19,25 @@ private:
 	int16_t _old_choose_scroll;
 
 	bool go_to_game;
+	bool go_to_menu;
+
+	bool scroll_error;
+	bool click_error;
 
 protected:
 	bool disable_music;
 	bool disable_3d;
 	int16_t number_of_disks;
 
+	bool mute;
+	float music_volume;
+	float _buf_music_volume;
+
 protected:
 	// Ошибки
 	bool font_error;
 	bool texture_error;
 	bool music_error;
-	bool scroll_error;
-	bool click_error;
 
 protected:
 	// Окно
@@ -54,6 +62,7 @@ public:
 
 private:
 	void activate_button(sf::RectangleShape& rect, int16_t number_of_rect, bool is_settings, int16_t n_settings_button);
+	bool actions();
 	void settings();
 };
 

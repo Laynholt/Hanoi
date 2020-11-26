@@ -8,6 +8,7 @@ Hanoi::Hanoi()
 	count_built_tower = 0;
 	started_tower = pin;
 
+	mute = false;
 	back_to_menu = false;
 
 	number_of_disks = 3;
@@ -21,7 +22,11 @@ Hanoi::Hanoi()
 		sound_error = true;
 	}
 
-	else { wrong_sound.setBuffer(sound_buffer1); }
+	else 
+	{ 
+		wrong_sound.setBuffer(sound_buffer1); 
+		wrong_sound.setVolume(MUSIC_VOLUME + music_volume);
+	}
 
 	disk_sound_error = false;
 	if (!sound_buffer2.loadFromFile("recources/sounds/disks.ogg"))
@@ -30,7 +35,11 @@ Hanoi::Hanoi()
 		disk_sound_error = true;
 	}
 
-	else { disk_sound.setBuffer(sound_buffer2); }
+	else 
+	{
+		disk_sound.setBuffer(sound_buffer2); 
+		disk_sound.setVolume(MUSIC_VOLUME + music_volume);
+	}
 
 	congrats_error = false;
 	if (!sound_buffer3.loadFromFile("recources/sounds/congrats.ogg"))
@@ -39,7 +48,11 @@ Hanoi::Hanoi()
 		congrats_error = true;
 	}
 
-	else { congrats_sound.setBuffer(sound_buffer3); }
+	else 
+	{ 
+		congrats_sound.setBuffer(sound_buffer3); 
+		congrats_sound.setVolume(MUSIC_VOLUME + music_volume);
+	}
 }
 
 void Hanoi::Loop()
@@ -110,6 +123,24 @@ void Hanoi::Loop()
 			if (event.type == sf::Event::Closed)
 				window.close();
 
+			// Громкость музыки и звуков
+			if (event.type == sf::Event::MouseWheelScrolled)
+			{
+				if (!mute)
+				{
+					if (event.mouseWheelScroll.delta >= 1.0f)
+						music_volume += (music_volume < (100.0f - MUSIC_VOLUME)) ? 5.0f : (-5.0f);
+					else if (event.mouseWheelScroll.delta <= -1.0f)
+						music_volume -= (music_volume > (0.0f - MUSIC_VOLUME)) ? 5.0f : (-5.0f);
+
+					if (!music_error) { music.setVolume(MUSIC_VOLUME + music_volume); }
+					if (!sound_error) { wrong_sound.setVolume(MUSIC_VOLUME + music_volume); }
+					if (!disk_sound_error) { disk_sound.setVolume(MUSIC_VOLUME + music_volume); }
+					if (!congrats_error) { congrats_sound.setVolume(MUSIC_VOLUME + music_volume); }
+					a = -1;
+				}
+			}
+
 			// Действия
 			if (event.type == sf::Event::EventType::MouseButtonPressed || event.type == sf::Event::EventType::KeyPressed)
 			{
@@ -128,15 +159,6 @@ void Hanoi::Loop()
 			first = false;
 
 			if (a == 1 || a == 5) { triangle.setPosition((pin * horisontal_width / 3) + vertical_x - _radius + vertical[0].getSize().x / 2, SCREEN_HEIGHT * 0.85f); }
-			if (a == 2 || a == 5)
-			{
-				if (!font_error)
-				{
-					std::wstring wstr = L"Башенек собранно: " + std::to_wstring(count_built_tower) +
-						L"\tКоличество ходов: " + std::to_wstring(count) + L"\tРекорд по сбору (ходы): " + std::to_wstring(best_count);
-					text.setString(wstr);
-				}
-			}
 
 			// Фон
 			if (!texture_error) window.draw(sprite);
@@ -144,7 +166,20 @@ void Hanoi::Loop()
 
 			// Текст
 			window.draw(rect_for_text);
-			if (!font_error) window.draw(text);
+			if (!font_error)
+			{
+				std::wstring wstr = L"Башенек собранно: " + std::to_wstring(count_built_tower) +
+					L"\tКоличество ходов: " + std::to_wstring(count) + L"\tРекорд по сбору (ходы): " + std::to_wstring(best_count);
+				text.setString(wstr);
+				text.setCharacterSize(30);
+				text.setPosition(sf::Vector2f(70, 0));
+				window.draw(text);
+
+				text.setString(L"Громкость: " + std::to_wstring((int16_t)MUSIC_VOLUME + (int16_t)music_volume));
+				text.setCharacterSize(20);
+				text.setPosition(sf::Vector2f(0.0f, SCREEN_HEIGHT - 40));
+				window.draw(text);
+			}
 
 			// Горизонт и указатель
 			for (int16_t j = (FOR_3D > 1) ? -FOR_3D : 0; j < FOR_3D; j++)
@@ -204,6 +239,27 @@ int16_t Hanoi::actions()
 			if (!sound_error) { wrong_sound.play(); }
 		}
 
+		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::M))
+		{
+			if (!mute)
+			{
+				_buf_music_volume = music_volume;
+				music_volume = -MUSIC_VOLUME;
+				mute = true;
+			}
+
+			else
+			{
+				music_volume = _buf_music_volume;
+				mute = false;
+			}
+
+			if (!music_error) { music.setVolume(MUSIC_VOLUME + music_volume); }
+			if (!sound_error) { wrong_sound.setVolume(MUSIC_VOLUME + music_volume); }
+			if (!disk_sound_error) { disk_sound.setVolume(MUSIC_VOLUME + music_volume); }
+			if (!congrats_error) { congrats_sound.setVolume(MUSIC_VOLUME + music_volume); }
+		}
+
 		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape)) { return 4; }
 		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::R))
 		{
@@ -240,7 +296,7 @@ void Hanoi::restart()
 	{
 		music.play();
 		music.setLoop(true);
-		music.setVolume(50.0f);
+		music.setVolume(MUSIC_VOLUME + music_volume);
 	}
 
 	// Текст
@@ -252,6 +308,12 @@ void Hanoi::restart()
 		text.setPosition(sf::Vector2f(70, 0));
 		text.setCharacterSize(30);
 		text.setStyle(sf::Text::Bold);
+		window.draw(text);
+
+		text.setString(L"Громкость: " + std::to_wstring((int16_t)MUSIC_VOLUME + (int16_t)music_volume));
+		text.setCharacterSize(20);
+		text.setPosition(sf::Vector2f(0.0f, SCREEN_HEIGHT - 40));
+		window.draw(text);
 	}
 
 	// Диски
@@ -357,7 +419,7 @@ void Hanoi::counting_built_towers()
 			if (best_count == 0 || best_count > count)
 				best_count = count;
 
-			if (!congrats_error) { congrats_sound.setVolume(50); congrats_sound.play(); }
+			if (!congrats_error) { congrats_sound.setVolume(MUSIC_VOLUME + music_volume); congrats_sound.play(); }
 
 			count = 0;
 

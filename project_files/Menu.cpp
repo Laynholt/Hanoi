@@ -37,6 +37,7 @@ Menu::Menu()
 	// Подключаем музыку
 	music_error = false;
 	disable_music = false;
+	music_volume = 0.0f;
 	if (!music.openFromFile("recources/music/Space-Music-Astro.ogg"))
 	{
 		std::wcout << L"\nMusic error!" << std::endl;
@@ -51,6 +52,8 @@ Menu::Menu()
 		click_error = true;
 	}
 
+	else { click.setVolume(MUSIC_VOLUME + music_volume); }
+
 	// Подключаем звук скролла
 	scroll_error = false;
 	if (!scroll_buffer.loadFromFile("recources/sounds/scroll2.ogg"))
@@ -59,9 +62,15 @@ Menu::Menu()
 		scroll_error = true;
 	}
 
+	else { scroll.setVolume(MUSIC_VOLUME + music_volume); }
+
 	disable_3d = false;
 	number_of_disks = 0;
 	go_to_game = false;
+
+	mute = false;
+	go_to_menu = false;
+	_buf_music_volume = 0.0f;
 
 	_old_choose_scroll = -1;
 	_old_choose_disk = _old_choose_3d = _old_choose_music = 0;
@@ -105,11 +114,11 @@ int16_t Menu::menu()
 	{
 		music.play();
 		music.setLoop(true);
-		music.setVolume(50.0f);
+		music.setVolume(MUSIC_VOLUME + music_volume);
 	}
 
-	if (!click_error) { click.setBuffer(click_buffer); }
-	if (!scroll_error) { scroll.setBuffer(scroll_buffer); }
+	if (!click_error) { click.setBuffer(click_buffer); click.setVolume(MUSIC_VOLUME + music_volume); }
+	if (!scroll_error) { scroll.setBuffer(scroll_buffer); scroll.setVolume(MUSIC_VOLUME + music_volume); }
 
 	float l, k;
 	bool m = false;
@@ -122,14 +131,7 @@ int16_t Menu::menu()
 			if (event.type == sf::Event::Closed)
 				window.close();
 
-			// Нажатие левой кнопки для звуков
-			if (event.type == sf::Event::EventType::MouseButtonPressed)
-				if (event.mouseButton.button == sf::Mouse::Left && window.hasFocus())
-					if (!click_error) { click.play(); }
-			// Нажатие Esc для звуков
-			if (event.type == sf::Event::EventType::KeyPressed)
-				if (event.key.code == sf::Keyboard::Escape && window.hasFocus())
-					if (!click_error) { click.play(); }
+			actions();
 
 			// Экшенс
 			for (int16_t i = 0; i < 3; i++)
@@ -177,18 +179,27 @@ int16_t Menu::menu()
 					SCREEN_HEIGHT / 4 + (SCREEN_HEIGHT / 6 + 10) * i + 10));
 				text.setStyle(sf::Text::Bold);
 				window.draw(text);
-
-				autor.setCharacterSize(20);
-				str = L"ver. ~release 1.0";
-				autor.setString(str);
-				autor.setPosition(sf::Vector2f(SCREEN_WIDTH - 250, SCREEN_HEIGHT - 70));
-				window.draw(autor);
-
-				str = L"Created by Laynholt |> 2020";
-				autor.setString(str);
-				autor.setPosition(sf::Vector2f(SCREEN_WIDTH - 320, SCREEN_HEIGHT - 40));
-				window.draw(autor);
 			}
+		}
+
+		if (!font_error)
+		{
+			text.setString(L"Громкость: " + std::to_wstring((int16_t)MUSIC_VOLUME + (int16_t)music_volume));
+			text.setCharacterSize(20);
+			text.setPosition(sf::Vector2f(0.0f, SCREEN_HEIGHT - 40));
+			window.draw(text);
+
+
+			autor.setCharacterSize(20);
+			str = L"ver. ~release 1.2";
+			autor.setString(str);
+			autor.setPosition(sf::Vector2f(SCREEN_WIDTH - 250, SCREEN_HEIGHT - 70));
+			window.draw(autor);
+
+			str = L"Created by Laynholt |> 2020";
+			autor.setString(str);
+			autor.setPosition(sf::Vector2f(SCREEN_WIDTH - 320, SCREEN_HEIGHT - 40));
+			window.draw(autor);
 		}
 
 		window.display();
@@ -216,7 +227,7 @@ void Menu::activate_button(sf::RectangleShape& rect, int16_t number_of_rect, boo
 
 		if (number_of_rect != _old_choose_scroll)
 		{
-			if (!scroll_error) { scroll.setVolume(50); scroll.play(); }
+			if (!scroll_error) { scroll.setVolume(MUSIC_VOLUME + music_volume); scroll.play(); }
 			_old_choose_scroll = number_of_rect;
 		}
 
@@ -227,7 +238,10 @@ void Menu::activate_button(sf::RectangleShape& rect, int16_t number_of_rect, boo
 				if (number_of_rect == 0)
 					go_to_game = true;
 				else if (number_of_rect == 1)
+				{
 					settings();
+					go_to_menu = false;
+				}
 				else if (number_of_rect == 2)
 					window.close();
 			}
@@ -292,9 +306,59 @@ void Menu::activate_button(sf::RectangleShape& rect, int16_t number_of_rect, boo
 	}
 }
 
+bool Menu::actions()
+{
+	// Нажатие левой кнопки для звуков
+	if (event.type == sf::Event::EventType::MouseButtonPressed)
+		if (event.mouseButton.button == sf::Mouse::Left && window.hasFocus())
+			if (!click_error) { click.play(); }
+	// Нажатие Esc для звуков
+	if (event.type == sf::Event::EventType::KeyPressed)
+		if (event.key.code == sf::Keyboard::Escape && window.hasFocus())
+			if (!click_error) { click.play(); go_to_menu = true; }
+	if (event.type == sf::Event::EventType::KeyPressed)
+		if (event.key.code == sf::Keyboard::M && window.hasFocus())
+		{
+			if (!mute)
+			{
+				_buf_music_volume = music_volume;
+				music_volume = -MUSIC_VOLUME;
+				mute = true;
+			}
+
+			else
+			{
+				music_volume = _buf_music_volume;
+				mute = false;
+			}
+
+			if (!music_error) { music.setVolume(MUSIC_VOLUME + music_volume); }
+			if (!click_error) { click.setVolume(MUSIC_VOLUME + music_volume); }
+			if (!scroll_error) { scroll.setVolume(MUSIC_VOLUME + music_volume); }
+		}
+
+	// Громкость музыки
+	if (event.type == sf::Event::MouseWheelScrolled)
+	{
+		if (!mute)
+		{
+			if (event.mouseWheelScroll.delta >= 1.0f)
+				music_volume += (music_volume < (100.0f - MUSIC_VOLUME)) ? 5.0f : (-5.0f);
+			else if (event.mouseWheelScroll.delta <= -1.0f)
+				music_volume -= (music_volume > (0.0f - MUSIC_VOLUME)) ? 5.0f : (-5.0f);
+
+			if (!music_error) { music.setVolume(MUSIC_VOLUME + music_volume); }
+			if (!click_error) { click.setVolume(MUSIC_VOLUME + music_volume); }
+			if (!scroll_error) { scroll.setVolume(MUSIC_VOLUME + music_volume); }
+		}
+	}
+
+	return false;
+}
+
 void Menu::settings()
 {
-	bool go_to_menu = false;
+	go_to_menu = false;
 	_old_choose_scroll = -1;
 
 	sf::RectangleShape rect_count_disks;
@@ -365,13 +429,7 @@ void Menu::settings()
 			if (event.type == sf::Event::Closed)
 				window.close();
 
-			if (event.type == sf::Event::EventType::MouseButtonPressed)
-				if (event.mouseButton.button == sf::Mouse::Left && window.hasFocus())
-					if (!click_error) { click.play(); }
-
-			if (event.type == sf::Event::EventType::KeyPressed)
-				if (event.key.code == sf::Keyboard::Escape && window.hasFocus())
-					if (!click_error) { click.play(); go_to_menu = true; }
+			actions();
 
 			// Экшены
 			for (int16_t i = 0; i < 4; i++)
@@ -388,6 +446,15 @@ void Menu::settings()
 		window.clear();
 
 		if (!texture_error) window.draw(sprite);
+
+		if (!font_error)
+		{
+			text.setString(L"Громкость: " + std::to_wstring((int16_t)MUSIC_VOLUME + (int16_t)music_volume));
+			text.setCharacterSize(20);
+			text.setPosition(sf::Vector2f(0.0f, SCREEN_HEIGHT - 40));
+			window.draw(text);
+			text.setCharacterSize(60);
+		}
 
 		// Рисуем прямоугольник Количества дисков и надпись
 		window.draw(rect_count_disks);
