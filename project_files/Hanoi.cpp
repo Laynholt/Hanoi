@@ -1,6 +1,6 @@
 #include "Hanoi.h"
 
-Hanoi::Hanoi()
+Hanoi::Hanoi(Music& music, Flags_for_game& flags)
 {
 	pin = 0;
 	count = 0;
@@ -8,11 +8,10 @@ Hanoi::Hanoi()
 	count_built_tower = 0;
 	started_tower = pin;
 
-	mute = false;
-	back_to_menu = false;
+	vertical_x = _radius = 0.0f;
 
-	number_of_disks = 3;
-	FOR_3D = (disable_3d == false) ? 10 : 1;
+	flags.number_of_disks = 3;
+	FOR_3D = (flags.disable_3d == false) ? 10 : 1;
 	horisontal_width = vertical_height = 0.0f;
 
 	sound_error = false;
@@ -25,7 +24,7 @@ Hanoi::Hanoi()
 	else 
 	{ 
 		wrong_sound.setBuffer(sound_buffer1); 
-		wrong_sound.setVolume(MUSIC_VOLUME + music_volume);
+		wrong_sound.setVolume(MUSIC_VOLUME + music.music_volume);
 	}
 
 	disk_sound_error = false;
@@ -38,7 +37,7 @@ Hanoi::Hanoi()
 	else 
 	{
 		disk_sound.setBuffer(sound_buffer2); 
-		disk_sound.setVolume(MUSIC_VOLUME + music_volume);
+		disk_sound.setVolume(MUSIC_VOLUME + music.music_volume);
 	}
 
 	congrats_error = false;
@@ -51,29 +50,22 @@ Hanoi::Hanoi()
 	else 
 	{ 
 		congrats_sound.setBuffer(sound_buffer3); 
-		congrats_sound.setVolume(MUSIC_VOLUME + music_volume);
+		congrats_sound.setVolume(MUSIC_VOLUME + music.music_volume);
 	}
 }
 
-void Hanoi::Loop()
+void Hanoi::create(sf::RenderWindow& window, Music& music, Flags_for_game& flags)
 {
-	// Плашка на которой будет лежать текст
-	sf::RectangleShape rect_for_text;
+	flags.go_to_menu = flags.go_to_settings = false;
 
 	rect_for_text.setSize(sf::Vector2f(SCREEN_WIDTH, SCREEN_HEIGHT / 12));
 	rect_for_text.setFillColor(sf::Color(22, 22, 22, 255));
 	rect_for_text.setOutlineThickness(3);
 	rect_for_text.setOutlineColor(sf::Color::White);
 
-	// Выводим меню
-	menu();
-
 	stacks.resize(3);
 	vertical.resize(3);
 	full_heights.resize(3);
-
-	// Стержни
-	float vertical_x;
 
 	horisontal_width = SCREEN_WIDTH * 0.8f;
 	vertical_height = SCREEN_HEIGHT * 0.4f;
@@ -88,8 +80,7 @@ void Hanoi::Loop()
 		vertical_x += horisontal_width / 3;
 	}
 
-	// Указатель
-	float _radius = ((SCREEN_HEIGHT > SCREEN_WIDTH) ? SCREEN_WIDTH : SCREEN_HEIGHT) * 0.05f;
+	_radius = ((SCREEN_HEIGHT > SCREEN_WIDTH) ? SCREEN_WIDTH : SCREEN_HEIGHT) * 0.05f;
 	vertical_x = SCREEN_WIDTH * 0.1f + horisontal_width / 6;
 
 	triangle.setRadius(_radius);
@@ -97,185 +88,187 @@ void Hanoi::Loop()
 	triangle.setFillColor(sf::Color(222, 16, 94, 200));
 	triangle.setPosition((pin * horisontal_width / 3) + vertical_x - _radius + vertical[0].getSize().x / 2, SCREEN_HEIGHT * 0.85f); // 0.81f
 
-	// Запускаем функцию рестарта
-	restart();
+	restart(window, music, flags);
+}
 
-
-	// Луп Игры
+void Hanoi::update(sf::RenderWindow& window, Music& music, Flags_for_game& flags)
+{
 	int16_t a = 0;
-	bool first = true;			// Для отрисовки в первый раз
+	vertical_x = SCREEN_WIDTH * 0.1f + horisontal_width / 6;
 
-	while (window.isOpen())
+	while (window.pollEvent(event))
 	{
-		vertical_x = SCREEN_WIDTH * 0.1f + horisontal_width / 6;
+		if (event.type == sf::Event::Closed)
+			window.close();
 
-		// Возврат в меню
-		if (back_to_menu)
+		// Громкость музыки и звуков
+		if (event.type == sf::Event::MouseWheelScrolled)
 		{
-			menu();
-			restart();
-			first = true;
-			triangle.setPosition((pin * horisontal_width / 3) + vertical_x - _radius + vertical[0].getSize().x / 2, SCREEN_HEIGHT * 0.85f);
-		}
-
-		while (window.pollEvent(event))
-		{
-			if (event.type == sf::Event::Closed)
-				window.close();
-
-			// Громкость музыки и звуков
-			if (event.type == sf::Event::MouseWheelScrolled)
+			if (!music.mute)
 			{
-				if (!mute)
-				{
-					if (event.mouseWheelScroll.delta >= 1.0f)
-						music_volume += (music_volume < (100.0f - MUSIC_VOLUME)) ? 5.0f : (-5.0f);
-					else if (event.mouseWheelScroll.delta <= -1.0f)
-						music_volume -= (music_volume > (0.0f - MUSIC_VOLUME)) ? 5.0f : (-5.0f);
+				if (event.mouseWheelScroll.delta >= 1.0f)
+					music.music_volume += (music.music_volume < (100.0f - MUSIC_VOLUME)) ? 5.0f : (-5.0f);
+				else if (event.mouseWheelScroll.delta <= -1.0f)
+					music.music_volume -= (music.music_volume > (0.0f - MUSIC_VOLUME)) ? 5.0f : (-5.0f);
 
-					if (!music_error) { music.setVolume(MUSIC_VOLUME + music_volume); }
-					if (!sound_error) { wrong_sound.setVolume(MUSIC_VOLUME + music_volume); }
-					if (!disk_sound_error) { disk_sound.setVolume(MUSIC_VOLUME + music_volume); }
-					if (!congrats_error) { congrats_sound.setVolume(MUSIC_VOLUME + music_volume); }
-					a = -1;
-				}
-			}
-
-			// Действия
-			if (event.type == sf::Event::EventType::MouseButtonPressed || event.type == sf::Event::EventType::KeyPressed)
-			{
-				a = actions();
-				if (a == 4) { back_to_menu = true; }
+				if (!music.music_error) { music.music.setVolume(MUSIC_VOLUME + music.music_volume); }
+				if (!sound_error) { wrong_sound.setVolume(MUSIC_VOLUME + music.music_volume); }
+				if (!disk_sound_error) { disk_sound.setVolume(MUSIC_VOLUME + music.music_volume); }
+				if (!congrats_error) { congrats_sound.setVolume(MUSIC_VOLUME + music.music_volume); }
+				a = -1;
 			}
 		}
 
-		// Подсчёт количества собранных башен
-		counting_built_towers();
-
-		if (a != 0 || first)
+		// Действия
+		if (event.type == sf::Event::EventType::MouseButtonPressed || event.type == sf::Event::EventType::KeyPressed)
 		{
-			window.clear();
-
-			first = false;
-
-			if (a == 1 || a == 5) { triangle.setPosition((pin * horisontal_width / 3) + vertical_x - _radius + vertical[0].getSize().x / 2, SCREEN_HEIGHT * 0.85f); }
-
-			// Фон
-			if (!texture_error) window.draw(sprite);
-
-
-			// Текст
-			window.draw(rect_for_text);
-			if (!font_error)
-			{
-				std::wstring wstr = L"Башенек собранно: " + std::to_wstring(count_built_tower) +
-					L"\tКоличество ходов: " + std::to_wstring(count) + L"\tРекорд по сбору (ходы): " + std::to_wstring(best_count);
-				text.setString(wstr);
-				text.setCharacterSize(30);
-				text.setPosition(sf::Vector2f(70, 0));
-				window.draw(text);
-
-				text.setString(L"Громкость: " + std::to_wstring((int16_t)MUSIC_VOLUME + (int16_t)music_volume));
-				text.setCharacterSize(20);
-				text.setPosition(sf::Vector2f(0.0f, SCREEN_HEIGHT - 40));
-				window.draw(text);
-			}
-
-			// Горизонт и указатель
-			for (int16_t j = (FOR_3D > 1) ? -FOR_3D : 0; j < FOR_3D; j++)
-			{
-				horisontal.setPosition(sf::Vector2f(SCREEN_WIDTH * 0.1f + j, SCREEN_HEIGHT * 0.8f - j));
-				window.draw(horisontal);
-			}
-			window.draw(triangle);
-
-			// Вертикальные столбцы
-			for (uint16_t i = 0; i < 3; i++)
-			{
-				for (int16_t j = 0; j < FOR_3D; j++)
-				{
-					window.draw(vertical[i]);
-					vertical[i].setPosition(sf::Vector2f(vertical_x + j, SCREEN_HEIGHT * 0.4f - j));
-				}
-				vertical[i].setPosition(sf::Vector2f(vertical_x, SCREEN_HEIGHT * 0.4f));
-				vertical_x += horisontal_width / 3;
-			}
-
-			// Башенка
-			draw_tower();
-
-			window.display();
+			a = actions(window, music, flags);
 		}
+	}
+
+	// Подсчёт количества собранных башен
+	counting_built_towers(music, flags);
+
+	if (a == 0)
+	{
+		window.clear();
+
+
+		// Фон
+		if (!texture_error) window.draw(sprite);
+
+
+		// Текст
+		window.draw(rect_for_text);
+		if (!font_error)
+		{
+			std::wstring wstr = L"Башенек собранно: " + std::to_wstring(count_built_tower) +
+				L"\tКоличество ходов: " + std::to_wstring(count) + L"\tРекорд по сбору (ходы): " + std::to_wstring(best_count);
+			text.setString(wstr);
+			text.setCharacterSize(30);
+			text.setPosition(sf::Vector2f(70, 0));
+			window.draw(text);
+
+			text.setString(L"Громкость: " + std::to_wstring((int16_t)MUSIC_VOLUME + (int16_t)music.music_volume));
+			text.setCharacterSize(20);
+			text.setPosition(sf::Vector2f(0.0f, SCREEN_HEIGHT - 40));
+			window.draw(text);
+		}
+
+		// Горизонт и указатель
+		for (int16_t j = (FOR_3D > 1) ? -FOR_3D : 0; j < FOR_3D; j++)
+		{
+			horisontal.setPosition(sf::Vector2f(SCREEN_WIDTH * 0.1f + j, SCREEN_HEIGHT * 0.8f - j));
+			window.draw(horisontal);
+		}
+		window.draw(triangle);
+
+		// Вертикальные столбцы
+		for (uint16_t i = 0; i < 3; i++)
+		{
+			for (int16_t j = 0; j < FOR_3D; j++)
+			{
+				window.draw(vertical[i]);
+				vertical[i].setPosition(sf::Vector2f(vertical_x + j, SCREEN_HEIGHT * 0.4f - j));
+			}
+			vertical[i].setPosition(sf::Vector2f(vertical_x, SCREEN_HEIGHT * 0.4f));
+			vertical_x += horisontal_width / 3;
+		}
+
+		// Башенка
+		draw_tower(window);
 	}
 }
 
-int16_t Hanoi::actions()
+int16_t Hanoi::actions(sf::RenderWindow& window, Music& music, Flags_for_game& flags)
 {
 	if (window.hasFocus())
 	{
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num1) || sf::Keyboard::isKeyPressed(sf::Keyboard::Numpad1)) { pin = 0; return 1; }
-		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num2) || sf::Keyboard::isKeyPressed(sf::Keyboard::Numpad2)) { pin = 1; return 1; }
-		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num3) || sf::Keyboard::isKeyPressed(sf::Keyboard::Numpad3)) { pin = 2; return 1; }
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num1) || sf::Keyboard::isKeyPressed(sf::Keyboard::Numpad1)) 
+		{ 
+			pin = 0; 
+			vertical_x = SCREEN_WIDTH * 0.1f + horisontal_width / 6;
+			triangle.setPosition((pin * horisontal_width / 3) + vertical_x - _radius + vertical[0].getSize().x / 2, SCREEN_HEIGHT * 0.85f);
+		}
+
+		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num2) || sf::Keyboard::isKeyPressed(sf::Keyboard::Numpad2)) 
+		{
+			pin = 1;
+			vertical_x = SCREEN_WIDTH * 0.1f + horisontal_width / 6;
+			triangle.setPosition((pin * horisontal_width / 3) + vertical_x - _radius + vertical[0].getSize().x / 2, SCREEN_HEIGHT * 0.85f);
+		}
+
+		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num3) || sf::Keyboard::isKeyPressed(sf::Keyboard::Numpad3)) 
+		{
+			pin = 2;
+			vertical_x = SCREEN_WIDTH * 0.1f + horisontal_width / 6;
+			triangle.setPosition((pin * horisontal_width / 3) + vertical_x - _radius + vertical[0].getSize().x / 2, SCREEN_HEIGHT * 0.85f);
+		}
+
 
 		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::W) || sf::Keyboard::isKeyPressed(sf::Keyboard::Left) || sf::Mouse::isButtonPressed(sf::Mouse::Left))
 		{
-			if (pin == 2) { if (!move_disk(2, 1, 1)) { count++; if (!disk_sound_error) { disk_sound.play(); } return 2; } }
-			else if (pin == 1) { if (!move_disk(1, 0, 0)) { count++; if (!disk_sound_error) { disk_sound.play(); } return 2; } }
+			if (pin == 2) { if (!move_disk(2, 1, 1)) { count++; if (!disk_sound_error) { disk_sound.play(); } return 0; } }
+			else if (pin == 1) { if (!move_disk(1, 0, 0)) { count++; if (!disk_sound_error) { disk_sound.play(); } return 0; } }
 
 			if (!sound_error) { wrong_sound.play(); }
 		}
 		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::E) || sf::Keyboard::isKeyPressed(sf::Keyboard::Right) || sf::Mouse::isButtonPressed(sf::Mouse::Right))
 		{
-			if (pin == 0) { if (!move_disk(0, 1, 1)) { count++; if (!disk_sound_error) { disk_sound.play(); } return 2; } }
-			else if (pin == 1) { if (!move_disk(1, 2, 2)) { count++; if (!disk_sound_error) { disk_sound.play(); } return 2; } }
+			if (pin == 0) { if (!move_disk(0, 1, 1)) { count++; if (!disk_sound_error) { disk_sound.play(); } return 0; } }
+			else if (pin == 1) { if (!move_disk(1, 2, 2)) { count++; if (!disk_sound_error) { disk_sound.play(); } return 0; } }
 
 			if (!sound_error) { wrong_sound.play(); }
 		}
 		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space) || sf::Keyboard::isKeyPressed(sf::Keyboard::Up) || sf::Mouse::isButtonPressed(sf::Mouse::Middle))
 		{
-			if (pin == 0) { if (!move_disk(0, 2, 2)) { count++; if (!disk_sound_error) { disk_sound.play(); } return 2; } }
-			else if (pin == 2) { if (!move_disk(2, 0, 0)) { count++; if (!disk_sound_error) { disk_sound.play(); } return 2; } }
+			if (pin == 0) { if (!move_disk(0, 2, 2)) { count++; if (!disk_sound_error) { disk_sound.play(); } return 0; } }
+			else if (pin == 2) { if (!move_disk(2, 0, 0)) { count++; if (!disk_sound_error) { disk_sound.play(); } return 0; } }
 
 			if (!sound_error) { wrong_sound.play(); }
 		}
 
 		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::M))
 		{
-			if (!mute)
+			if (!music.mute)
 			{
-				_buf_music_volume = music_volume;
-				music_volume = -MUSIC_VOLUME;
-				mute = true;
+				music._buf_music_volume = music.music_volume;
+				music.music_volume = -MUSIC_VOLUME;
+				music.mute = true;
 			}
 
 			else
 			{
-				music_volume = _buf_music_volume;
-				mute = false;
+				music.music_volume = music._buf_music_volume;
+				music.mute = false;
 			}
 
-			if (!music_error) { music.setVolume(MUSIC_VOLUME + music_volume); }
-			if (!sound_error) { wrong_sound.setVolume(MUSIC_VOLUME + music_volume); }
-			if (!disk_sound_error) { disk_sound.setVolume(MUSIC_VOLUME + music_volume); }
-			if (!congrats_error) { congrats_sound.setVolume(MUSIC_VOLUME + music_volume); }
+			if (!music.music_error) { music.music.setVolume(MUSIC_VOLUME + music.music_volume); }
+			if (!sound_error) { wrong_sound.setVolume(MUSIC_VOLUME + music.music_volume); }
+			if (!disk_sound_error) { disk_sound.setVolume(MUSIC_VOLUME + music.music_volume); }
+			if (!congrats_error) { congrats_sound.setVolume(MUSIC_VOLUME + music.music_volume); }
 		}
 
-		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape)) { return 4; }
+		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape)) { flags.go_to_menu = true; flags.go_to_game = false; }
 		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::R))
 		{
-			restart();
-			return 5;
+			restart(window, music, flags);
+		}
+
+		else
+		{
+			return 1;
 		}
 	}
 
 	return 0;
 }
 
-void Hanoi::restart()
+void Hanoi::restart(sf::RenderWindow& window, Music& music, Flags_for_game& flags)
 {
-	disks.resize(number_of_disks);
+	disks.resize(flags.number_of_disks);
 
-	FOR_3D = (disable_3d == false) ? 10 : 1;
+	FOR_3D = (flags.disable_3d == false) ? 10 : 1;
 
 	pin = 0;
 	count = 0;
@@ -283,20 +276,18 @@ void Hanoi::restart()
 	started_tower = pin;
 	count_built_tower = 0;
 
-	back_to_menu = false;
-
 	// Музыка
-	if (!music.openFromFile("recources/music/Space-Music-Pulsar.ogg"))
+	if (!music.music.openFromFile("recources/music/Space-Music-Pulsar.ogg"))
 	{
 		std::wcout << "\nMusic error!" << std::endl;
-		music_error = true;
+		music.music_error = true;
 	}
 
-	if (!music_error && !disable_music)
+	if (!music.music_error && !music.disable_music)
 	{
-		music.play();
-		music.setLoop(true);
-		music.setVolume(MUSIC_VOLUME + music_volume);
+		music.music.play();
+		music.music.setLoop(true);
+		music.music.setVolume(MUSIC_VOLUME + music.music_volume);
 	}
 
 	// Текст
@@ -310,7 +301,7 @@ void Hanoi::restart()
 		text.setStyle(sf::Text::Bold);
 		window.draw(text);
 
-		text.setString(L"Громкость: " + std::to_wstring((int16_t)MUSIC_VOLUME + (int16_t)music_volume));
+		text.setString(L"Громкость: " + std::to_wstring((int16_t)MUSIC_VOLUME + (int16_t)music.music_volume));
 		text.setCharacterSize(20);
 		text.setPosition(sf::Vector2f(0.0f, SCREEN_HEIGHT - 40));
 		window.draw(text);
@@ -334,7 +325,7 @@ void Hanoi::restart()
 
 	srand(time(NULL));
 
-	for (uint16_t i = 0; i < number_of_disks; i++, scale -= SCALE_STEP)
+	for (uint16_t i = 0; i < flags.number_of_disks; i++, scale -= SCALE_STEP)
 	{
 		r = 40 + rand() % 200;
 		g = 40 + rand() % 200;
@@ -358,7 +349,7 @@ void Hanoi::restart()
 	}
 }
 
-void Hanoi::draw_tower()
+void Hanoi::draw_tower(sf::RenderWindow& window)
 {
 	std::stack<sf::RectangleShape> s;
 
@@ -407,11 +398,11 @@ bool Hanoi::move_disk(int8_t from_pin, int8_t to_pin, int16_t new_pin)
 	return 1;
 }
 
-void Hanoi::counting_built_towers()
+void Hanoi::counting_built_towers(Music& music, Flags_for_game& flags)
 {
 	for (int16_t i = 0; i < 3; i++)
 	{
-		if ((stacks[i].size() / FOR_3D) == number_of_disks && i != started_tower)
+		if ((stacks[i].size() / FOR_3D) == flags.number_of_disks && i != started_tower)
 		{
 			started_tower = i;
 			count_built_tower++;
@@ -419,7 +410,7 @@ void Hanoi::counting_built_towers()
 			if (best_count == 0 || best_count > count)
 				best_count = count;
 
-			if (!congrats_error) { congrats_sound.setVolume(MUSIC_VOLUME + music_volume); congrats_sound.play(); }
+			if (!congrats_error) { congrats_sound.setVolume(MUSIC_VOLUME + music.music_volume); congrats_sound.play(); }
 
 			count = 0;
 

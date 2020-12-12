@@ -104,14 +104,24 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="project_files\Elector.cpp" />
+    <ClCompile Include="project_files\Game.cpp" />
     <ClCompile Include="project_files\Hanoi.cpp" />
     <ClCompile Include="project_files\main.cpp" />
     <ClCompile Include="project_files\Menu.cpp" />
+    <ClCompile Include="project_files\Music.cpp" />
+    <ClCompile Include="project_files\Settings.cpp" />
+    <ClCompile Include="project_files\Window.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="project_files\Elector.h" />
+    <ClInclude Include="project_files\Game.h" />
     <ClInclude Include="project_files\Hanoi.h" />
     <ClInclude Include="project_files\Library.h" />
     <ClInclude Include="project_files\Menu.h" />
+    <ClInclude Include="project_files\Music.h" />
+    <ClInclude Include="project_files\Settings.h" />
+    <ClInclude Include="project_files\Window.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
