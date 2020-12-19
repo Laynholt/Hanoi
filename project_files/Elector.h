@@ -10,7 +10,7 @@ private:
 	Window* _win;
 
 public:
-	Elector(Window* win = nullptr);
+	Elector(Window* win = nullptr) : _new(true), _win(win) {}
 
 	void set_window(Window* win);
 	void show(sf::RenderWindow& window, Music& music, Flags_for_game& flags);

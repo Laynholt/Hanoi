@@ -1,11 +1,5 @@
 #include "Elector.h"
 
-Elector::Elector(Window* win)
-{
-	_new = true;
-	_win = win;
-}
-
 void Elector::set_window(Window* win)
 {
 	if (_win != win)

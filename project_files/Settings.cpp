@@ -24,6 +24,10 @@ Settings::Settings(Music& music)
 
 	_old_choose_scroll = -1;
 	_old_choose_disk = _old_choose_3d = _old_choose_music = 0;
+
+	rect_nums_disks.resize(4);
+	rect_on_off_3d.resize(2);
+	rect_on_off_music.resize(2);
 }
 
 void Settings::create(sf::RenderWindow& window, Music& music, Flags_for_game& flags)
@@ -33,9 +37,7 @@ void Settings::create(sf::RenderWindow& window, Music& music, Flags_for_game& fl
 
 	_old_choose_scroll = -1;
 
-	rect_nums_disks.resize(4);
-	rect_on_off_3d.resize(2);
-	rect_on_off_music.resize(2);
+	col.clear();
 
 	col.push_back(sf::Color(0, 162, 232, 255));
 	col.push_back(sf::Color(232, 220, 0, 255));

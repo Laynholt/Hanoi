@@ -23,6 +23,8 @@ Menu::Menu(Music& music)
 	else { scroll.setVolume(MUSIC_VOLUME + music.music_volume); }
 
 	_old_choose_scroll = -1;
+
+	rect.resize(3);
 }
 
 void Menu::create(sf::RenderWindow& window, Music& music, Flags_for_game& flags)
@@ -32,8 +34,6 @@ void Menu::create(sf::RenderWindow& window, Music& music, Flags_for_game& flags)
 	rect.clear();
 	col.clear();
 	titles.clear();
-
-	rect.resize(3);
 
 	col.push_back(sf::Color(255, 137, 39, 255));
 	col.push_back(sf::Color(0, 162, 232, 255));

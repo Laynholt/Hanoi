@@ -14,6 +14,10 @@ Hanoi::Hanoi(Music& music, Flags_for_game& flags)
 	FOR_3D = (flags.disable_3d == false) ? 10 : 1;
 	horisontal_width = vertical_height = 0.0f;
 
+	stacks.resize(3);
+	vertical.resize(3);
+	full_heights.resize(3);
+
 	sound_error = false;
 	if (!sound_buffer1.loadFromFile("recources/sounds/wrong.ogg"))
 	{
@@ -62,10 +66,6 @@ void Hanoi::create(sf::RenderWindow& window, Music& music, Flags_for_game& flags
 	rect_for_text.setFillColor(sf::Color(22, 22, 22, 255));
 	rect_for_text.setOutlineThickness(3);
 	rect_for_text.setOutlineColor(sf::Color::White);
-
-	stacks.resize(3);
-	vertical.resize(3);
-	full_heights.resize(3);
 
 	horisontal_width = SCREEN_WIDTH * 0.8f;
 	vertical_height = SCREEN_HEIGHT * 0.4f;
@@ -338,7 +338,7 @@ void Hanoi::restart(sf::RenderWindow& window, Music& music, Flags_for_game& flag
 		disks[i].setOutlineThickness(5);
 		disks[i].setOutlineColor(sf::Color(r + 15, g + 15, b + 15, 240));
 
-		sf::RectangleShape temp = disks[i];
+		sf::RectangleShape& temp = disks[i];
 		for (uint16_t j = 0; j < FOR_3D; j++)
 		{
 			stacks[pin].push(temp);
@@ -369,7 +369,7 @@ bool Hanoi::move_disk(int8_t from_pin, int8_t to_pin, int16_t new_pin)
 	{
 		if (stacks[to_pin].empty() || stacks[from_pin].top().getScale().x < stacks[to_pin].top().getScale().x)
 		{
-			sf::RectangleShape temp = stacks[from_pin].top();
+			sf::RectangleShape& temp = stacks[from_pin].top();
 
 			float disk_width, scale;
 			for (uint16_t j = 0; j < FOR_3D; j++)
