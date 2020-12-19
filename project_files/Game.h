@@ -17,5 +17,8 @@ public:
 
 private:
 	sf::RenderWindow window;
+
+	sf::Image image;
+	bool icon_error;
 };
 #endif // !_GAME_H_

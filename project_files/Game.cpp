@@ -4,6 +4,22 @@ Game::Game()
 {
 	window.create(sf::VideoMode(SCREEN_WIDTH, SCREEN_HEIGHT), "Towers of Hanoi", sf::Style::Titlebar);
 	window.setFramerateLimit(60);
+
+	//auto image = std::vector<sf::Uint8>{ 255,   0,   0, 255,    255,   0,   0, 255,    255,   0,   0, 255,
+	//								   0, 255,   0, 255,      0, 255,   0, 255,      0, 255,   0, 255,
+	//								   0,   0, 255, 255,      0,   0, 255, 255,      0,   0, 255, 255 };
+	//auto size = sf::Vector2u{ 3, 3 };
+	//window.setIcon(size.x, size.y, image.data());
+
+
+	icon_error = false;
+	if (!image.loadFromFile("recources/icons/1.png"))
+	{
+		std::wcout << L"\Icon error!" << std::endl;
+		icon_error = true;
+	}
+
+	if (!icon_error) window.setIcon(image.getSize().x, image.getSize().y, image.getPixelsPtr());
 }
 
 void Game::loop()
