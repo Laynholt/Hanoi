@@ -23,6 +23,9 @@ Menu::Menu(Music& music)
 	else { scroll.setVolume(MUSIC_VOLUME + music.music_volume); }
 
 	_old_choose_scroll = -1;
+
+	bmove_bg = false;
+	move_x = move_y = 0.0f;
 }
 
 void Menu::create(sf::RenderWindow& window, Music& music, Flags_for_game& flags)
@@ -81,11 +84,6 @@ void Menu::create(sf::RenderWindow& window, Music& music, Flags_for_game& flags)
 void Menu::update(sf::RenderWindow& window, Music& music, Flags_for_game& flags)
 {
 	std::wstring str;
-
-	float l, k;
-	bool m = false;
-	l = k = 0.0f;
-
 	
 	while (window.pollEvent(event))
 	{
@@ -107,23 +105,24 @@ void Menu::update(sf::RenderWindow& window, Music& music, Flags_for_game& flags)
 	if (!texture_error)
 	{
 		window.draw(sprite);
-		sprite.move(sf::Vector2f(l, k));
+		sprite.move(sf::Vector2f(move_x, move_y));
 	}
-	// Сдвиг фона вправо вниз
-	if (m == 0)
+	// Сдвиг фона вправо вниз	
+	if (!bmove_bg)
 	{
-		l += 0.01f;
-		k += 0.01f;
+		move_x += 0.01f;
+		move_y += 0.01f;
 
-		if (l >= 0.2f) { m = 1; }
+		if (move_x >= 0.2f) { bmove_bg = true; }
 	}
+
 	// Сдвиг фона влево вверх
-	else if (m == 1)
+	else if (bmove_bg)
 	{
-		l -= 0.01f;
-		k -= 0.01f;
+		move_x -= 0.01f;
+		move_y -= 0.01f;
 
-		if (l <= -0.2f) { m = 0; }
+		if (move_x <= -0.2f) { bmove_bg = false; }
 	}
 
 	// Отображение пунктов меню

@@ -12,6 +12,9 @@ private:
 
 	int16_t _old_choose_scroll;
 
+	bool bmove_bg;
+	float move_x, move_y;
+
 	bool scroll_error;
 	bool click_error;
 
