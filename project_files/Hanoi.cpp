@@ -142,7 +142,7 @@ void Hanoi::update(sf::RenderWindow& window, Music& music, Flags_for_game& flags
 		window.draw(rect_for_text);
 		if (!font_error)
 		{
-			std::wstring wstr = L"Башенек собранно: " + std::to_wstring(count_built_tower) +
+			std::wstring wstr = L"Башенок собранно: " + std::to_wstring(count_built_tower) +
 				L"\tКоличество ходов: " + std::to_wstring(count) + L"\tРекорд по сбору (ходы): " + std::to_wstring(best_count);
 			text.setString(wstr);
 			text.setCharacterSize(30);
