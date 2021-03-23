@@ -1,69 +1,37 @@
 #ifndef _MENU_H_
 #define _MENU_H_
 
-#include "Library.h"
+#include "Window.h"
 
-#define MUSIC_VOLUME 50.0f
-
-class Menu
+class Menu : public Window
 {
 private:
 	sf::Text autor;
 	sf::Sound click, scroll;
 	sf::SoundBuffer click_buffer, scroll_buffer;
 
-	int16_t _old_choose_disk;
-	int16_t _old_choose_3d;
-	int16_t _old_choose_music;
-
 	int16_t _old_choose_scroll;
 
-	bool go_to_game;
-	bool go_to_menu;
+	bool bmove_bg;
+	float move_x, move_y;
 
 	bool scroll_error;
 	bool click_error;
 
-protected:
-	bool disable_music;
-	bool disable_3d;
-	int16_t number_of_disks;
-
-	bool mute;
-	float music_volume;
-	float _buf_music_volume;
-
-protected:
-	// Ошибки
-	bool font_error;
-	bool texture_error;
-	bool music_error;
-
-protected:
-	// Окно
-	sf::RenderWindow window;
-	sf::Event event;
-
-	// Текст
-	sf::Font font;
-	sf::Text text;
-
-	// Фон
-	sf::Texture texture;
-	sf::Sprite sprite;
-
-	// Музыка
-	sf::Music music;
+private:
+	std::vector<sf::RectangleShape> rect;
+	std::vector<sf::Color> col;
+	std::vector<std::wstring> titles;
 
 public:
-	Menu();
+	Menu(Music& music);
 
-	int16_t menu();
+	void create(sf::RenderWindow& window, Music& music, Flags_for_game& flags) override;
+	void update(sf::RenderWindow& window, Music& music, Flags_for_game& flags) override;
+	int16_t actions(sf::RenderWindow& window, Music& music, Flags_for_game& flags) override;
 
 private:
-	void activate_button(sf::RectangleShape& rect, int16_t number_of_rect, bool is_settings, int16_t n_settings_button);
-	bool actions();
-	void settings();
+	void activate_button(int16_t number_of_rect, sf::RenderWindow& window, Music& music, Flags_for_game& flags);
 };
 
 #endif // !_MENU_H_
