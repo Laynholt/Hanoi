@@ -9,4 +9,4 @@ It's a little game about Towers of Hanoi.
     
 Пример игры:
 ![1](https://user-images.githubusercontent.com/41357381/112178178-a1614480-8c0a-11eb-82ff-cb0cf96b1ec2.png)
-![Screen-457](https://user-images.githubusercontent.com/41357381/112178216-a7efbc00-8c0a-11eb-8a72-3d18d7677580.png)
+![image](https://user-images.githubusercontent.com/41357381/112179435-c0140b00-8c0b-11eb-93df-65afaa9bb110.png)
